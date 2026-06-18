@@ -61,6 +61,7 @@ func init() {
 
 	rootCmd.AddCommand(ops.NewOpsCmd())
 	rootCmd.AddCommand(iam.NewIAMCmd())
+	rootCmd.AddCommand(newClusterCmd())
 }
 
 // Execute runs the root command.
