@@ -22,6 +22,9 @@ func newDeleteCmd() *cobra.Command {
 			if !confirm {
 				return fmt.Errorf("--confirm is required to delete a nodepool")
 			}
+			if hkClient, ok := hyperkubeClientFromCmd(cmd); ok {
+				return deleteNodePoolHyperkube(cmd, hkClient, args[0])
+			}
 
 			client := clientFromCmd(cmd)
 			ctx := cmd.Context()

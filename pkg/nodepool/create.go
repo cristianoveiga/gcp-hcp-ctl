@@ -60,6 +60,9 @@ func newCreateCmd() *cobra.Command {
 }
 
 func (o *createOptions) run(cmd *cobra.Command, npName string) error {
+	if hkClient, ok := hyperkubeClientFromCmd(cmd); ok {
+		return createNodePoolHyperkube(cmd, hkClient, npName, o)
+	}
 	switch o.diskType {
 	case "pd-standard", "pd-ssd", "pd-balanced":
 	default:

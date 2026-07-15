@@ -25,6 +25,9 @@ func newListCmd() *cobra.Command {
   gcphcpctl nodepool list --cluster my-cluster`,
 		Args: cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if hkClient, ok := hyperkubeClientFromCmd(cmd); ok {
+				return listNodePoolsHyperkube(cmd, hkClient, clusterRef, outputFmt)
+			}
 			client := clientFromCmd(cmd)
 			ctx := cmd.Context()
 			out := cmd.OutOrStdout()

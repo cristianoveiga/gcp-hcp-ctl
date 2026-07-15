@@ -19,6 +19,9 @@ func newGetCmd() *cobra.Command {
 			return cobra.ExactArgs(1)(cmd, args)
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if hkClient, ok := hyperkubeClientFromCmd(cmd); ok {
+				return getNodePoolHyperkube(cmd, hkClient, args[0], outputFmt)
+			}
 			np, _, err := resolveNodePool(cmd.Context(), clientFromCmd(cmd), args[0])
 			if err != nil {
 				return err

@@ -35,6 +35,9 @@ func newScaleCmd() *cobra.Command {
 				return fmt.Errorf("--replicas must be non-negative")
 			}
 
+			if hkClient, ok := hyperkubeClientFromCmd(cmd); ok {
+				return scaleNodePoolHyperkube(cmd, hkClient, args[0], replicaCount, outputFmt)
+			}
 			client := clientFromCmd(cmd)
 			ctx := cmd.Context()
 
