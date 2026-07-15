@@ -10,13 +10,18 @@ import (
 
 	"github.com/openshift-online/gcp-hcp-ctl/pkg/auth"
 	"github.com/openshift-online/gcp-hcp-ctl/pkg/hyperfleet"
+	"github.com/openshift-online/gcp-hcp-ctl/pkg/hyperkube"
 	"github.com/openshift-online/gcp-hcp-ctl/pkg/output"
 	"github.com/spf13/cobra"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 type contextKey string
 
-const clientKey contextKey = "hyperfleet-client"
+const (
+	clientKey          contextKey = "hyperfleet-client"
+	hyperkubeClientKey contextKey = "hyperkube-client"
+)
 
 // NewClusterCmd returns the "cluster" command group.
 func NewClusterCmd() *cobra.Command {
@@ -30,6 +35,14 @@ func NewClusterCmd() *cobra.Command {
 				if err := parent.PersistentPreRunE(cmd, args); err != nil {
 					return err
 				}
+			}
+			if ep, _ := cmd.Flags().GetString("hyperkube-endpoint"); ep != "" {
+				hkClient, err := hyperkube.NewClient(ep)
+				if err != nil {
+					return err
+				}
+				cmd.SetContext(context.WithValue(cmd.Context(), hyperkubeClientKey, hkClient))
+				return nil
 			}
 			if err := validateRequiredFlags(cmd); err != nil {
 				return err
@@ -73,11 +86,16 @@ func newClientWithTokenSource(apiEndpoint string, ts *auth.TokenSource) (*hyperf
 }
 
 func clientFromCmd(cmd *cobra.Command) *hyperfleet.ClientWithResponses {
-	client, ok := cmd.Context().Value(clientKey).(*hyperfleet.ClientWithResponses)
+	c, ok := cmd.Context().Value(clientKey).(*hyperfleet.ClientWithResponses)
 	if !ok {
 		panic("bug: clientFromCmd called before PersistentPreRunE set the HyperFleet client")
 	}
-	return client
+	return c
+}
+
+func hyperkubeClientFromCmd(cmd *cobra.Command) (client.Client, bool) {
+	c, ok := cmd.Context().Value(hyperkubeClientKey).(client.Client)
+	return c, ok
 }
 
 // resolveCluster looks up a cluster by name or ID. It first tries a

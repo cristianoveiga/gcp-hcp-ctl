@@ -123,6 +123,9 @@ Both --iam-config-file and --network-config-file are required in config-file mod
 }
 
 func (o *createOptions) run(cmd *cobra.Command, clusterName string) error {
+	if hkClient, ok := hyperkubeClientFromCmd(cmd); ok {
+		return createClusterHyperkube(cmd, hkClient, clusterName, o)
+	}
 	if o.dryRun && o.setupInfra {
 		return fmt.Errorf("--dry-run cannot be combined with --setup-infra because setup-infra has side effects")
 	}

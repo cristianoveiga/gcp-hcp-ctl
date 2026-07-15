@@ -16,6 +16,9 @@ func newListCmd() *cobra.Command {
 		Short: "List all clusters",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if hkClient, ok := hyperkubeClientFromCmd(cmd); ok {
+				return listClustersHyperkube(cmd, hkClient, outputFmt)
+			}
 			client := clientFromCmd(cmd)
 			out := cmd.OutOrStdout()
 

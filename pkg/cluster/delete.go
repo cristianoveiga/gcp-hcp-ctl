@@ -22,7 +22,9 @@ func newDeleteCmd() *cobra.Command {
 			if !confirm {
 				return fmt.Errorf("--confirm is required to delete a cluster")
 			}
-
+			if hkClient, ok := hyperkubeClientFromCmd(cmd); ok {
+				return deleteClusterHyperkube(cmd, hkClient, args[0])
+			}
 			client := clientFromCmd(cmd)
 			cluster, err := resolveCluster(cmd.Context(), client, args[0])
 			if err != nil {
