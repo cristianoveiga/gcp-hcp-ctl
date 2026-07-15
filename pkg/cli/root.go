@@ -15,12 +15,13 @@ import (
 )
 
 var (
-	project      string
-	region       string
-	outputFormat string
-	configPath   string
-	apiEndpoint  string
-	oidcEndpoint string
+	project           string
+	region            string
+	outputFormat      string
+	configPath        string
+	apiEndpoint       string
+	oidcEndpoint      string
+	hyperkubeEndpoint string
 )
 
 var rootCmd = &cobra.Command{
@@ -71,6 +72,7 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&configPath, "config", "", "Config file path (default: ~/.gcphcpctl/config.yaml)")
 	rootCmd.PersistentFlags().StringVar(&apiEndpoint, "api-endpoint", os.Getenv("GCPHCPCTL_API_ENDPOINT"), "HyperFleet API endpoint URL (env: GCPHCPCTL_API_ENDPOINT)")
 	rootCmd.PersistentFlags().StringVar(&oidcEndpoint, "oidc-endpoint", os.Getenv("GCPHCPCTL_OIDC_ENDPOINT"), "OIDC issuer base URL (env: GCPHCPCTL_OIDC_ENDPOINT)")
+	rootCmd.PersistentFlags().StringVar(&hyperkubeEndpoint, "hyperkube-endpoint", os.Getenv("GCPHCPCTL_HYPERKUBE_ENDPOINT"), "Hyperkube platform-api endpoint URL (env: GCPHCPCTL_HYPERKUBE_ENDPOINT)")
 
 	rootCmd.AddCommand(newConfigCmd())
 	rootCmd.AddCommand(ops.NewOpsCmd())

@@ -146,6 +146,16 @@ func createClusterHyperkube(cmd *cobra.Command, hkClient client.Client, clusterN
 		}
 	}
 
+	if ns == "" {
+		return fmt.Errorf("--project is required (or set GCPHCPCTL_PROJECT): it is used as the namespace for the hyperkube API")
+	}
+	if opts.version == "" {
+		return fmt.Errorf("--version is required (e.g. --version 4.18.0)")
+	}
+	if opts.channelGroup == "" {
+		return fmt.Errorf("--channel-group is required (e.g. --channel-group stable)")
+	}
+
 	c := &publicv1.Cluster{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      clusterName,
