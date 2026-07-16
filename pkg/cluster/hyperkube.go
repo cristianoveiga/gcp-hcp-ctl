@@ -113,8 +113,10 @@ func createClusterHyperkube(cmd *cobra.Command, hkClient client.Client, clusterN
 	if region == "" {
 		region = "us-central1"
 	}
-
 	oidcBase, _ := cmd.Flags().GetString("oidc-endpoint")
+	if oidcBase == "" {
+		return fmt.Errorf("--oidc-endpoint is required (or set GCPHCPCTL_OIDC_ENDPOINT)")
+	}
 
 	bpOpts := buildPayloadOptions{
 		clusterName:    clusterName,
@@ -155,7 +157,6 @@ func createClusterHyperkube(cmd *cobra.Command, hkClient client.Client, clusterN
 	if opts.channelGroup == "" {
 		return fmt.Errorf("--channel-group is required (e.g. --channel-group stable)")
 	}
-
 	c := &publicv1.Cluster{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      clusterName,
