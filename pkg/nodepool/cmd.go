@@ -43,7 +43,8 @@ func NewNodePoolCmd() *cobra.Command {
 				}
 			}
 			if ep, _ := cmd.Flags().GetString("hyperkube-endpoint"); ep != "" {
-				hkClient, err := hyperkube.NewClient(ep)
+				insecure, _ := cmd.Flags().GetBool("insecure")
+				hkClient, err := hyperkube.NewClient(ep, insecure)
 				if err != nil {
 					return err
 				}

@@ -18,11 +18,15 @@ func init() {
 }
 
 // NewClient builds a controller-runtime typed client pointed at the hyperkube API server.
-// baseURL is the server URL, e.g. "http://localhost:8081".
-func NewClient(baseURL string) (client.Client, error) {
+// baseURL is the server URL, e.g. "https://hyperkube.example.com" or "http://localhost:8081".
+// Set insecure to true to skip TLS certificate verification (useful for local development).
+func NewClient(baseURL string, insecure bool) (client.Client, error) {
 	if baseURL == "" {
 		return nil, fmt.Errorf("hyperkube endpoint is required")
 	}
 	cfg := &rest.Config{Host: baseURL}
+	if insecure {
+		cfg.TLSClientConfig = rest.TLSClientConfig{Insecure: true}
+	}
 	return client.New(cfg, client.Options{Scheme: scheme})
 }
