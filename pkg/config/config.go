@@ -13,11 +13,12 @@ import (
 
 // Config holds the CLI configuration loaded from config file.
 type Config struct {
-	Project     string `yaml:"project"`
-	Region      string `yaml:"region"`
-	Output      string `yaml:"output"`
-	APIEndpoint  string `yaml:"api_endpoint"`
-	OIDCEndpoint string `yaml:"oidc_endpoint"`
+	Project            string `yaml:"project"`
+	Region             string `yaml:"region"`
+	Output             string `yaml:"output"`
+	APIEndpoint        string `yaml:"api_endpoint"`
+	OIDCEndpoint       string `yaml:"oidc_endpoint"`
+	HyperkubeEndpoint  string `yaml:"hyperkube_endpoint"`
 }
 
 // DefaultConfigDir returns the default config directory path.

@@ -61,6 +61,9 @@ func loadConfig(cmd *cobra.Command) error {
 	if !cmd.Flags().Changed("oidc-endpoint") && oidcEndpoint == "" && cfg.OIDCEndpoint != "" {
 		oidcEndpoint = cfg.OIDCEndpoint
 	}
+	if !cmd.Flags().Changed("hyperkube-endpoint") && hyperkubeEndpoint == "" && cfg.HyperkubeEndpoint != "" {
+		hyperkubeEndpoint = cfg.HyperkubeEndpoint
+	}
 
 	return nil
 }
