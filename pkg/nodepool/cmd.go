@@ -55,7 +55,8 @@ func NewNodePoolCmd() *cobra.Command {
 				return err
 			}
 			apiEndpoint, _ := cmd.Flags().GetString("api-endpoint")
-			client, err := newClient(apiEndpoint)
+			insecure, _ := cmd.Flags().GetBool("insecure")
+			client, err := newClient(apiEndpoint, insecure)
 			if err != nil {
 				return err
 			}
@@ -81,11 +82,11 @@ func validateRequiredFlags(cmd *cobra.Command) error {
 	return nil
 }
 
-func newClient(apiEndpoint string) (*hyperfleet.ClientWithResponses, error) {
+func newClient(apiEndpoint string, insecure bool) (*hyperfleet.ClientWithResponses, error) {
 	if apiEndpoint == "" {
 		return nil, fmt.Errorf("--api-endpoint is required (or set GCPHCPCTL_API_ENDPOINT or api_endpoint in config)")
 	}
-	return hyperfleet.NewAPIClient(apiEndpoint, auth.NewTokenSource())
+	return hyperfleet.NewAPIClient(apiEndpoint, auth.NewTokenSource(), insecure)
 }
 
 func clientFromCmd(cmd *cobra.Command) *hyperfleet.ClientWithResponses {

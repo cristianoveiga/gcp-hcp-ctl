@@ -10,12 +10,12 @@ import (
 )
 
 // NewAPIClient creates a HyperFleet API client authenticated via gcloud identity tokens.
-// baseURL must use HTTPS (e.g. https://hyperfleet-api.example.com).
-func NewAPIClient(baseURL string, tokenSource *auth.TokenSource) (*ClientWithResponses, error) {
+// baseURL should use HTTPS in production. Pass insecure=true to allow HTTP for local development.
+func NewAPIClient(baseURL string, tokenSource *auth.TokenSource, insecure bool) (*ClientWithResponses, error) {
 	if tokenSource == nil {
 		return nil, fmt.Errorf("token source is required")
 	}
-	if !strings.HasPrefix(baseURL, "https://") {
+	if !insecure && !strings.HasPrefix(baseURL, "https://") {
 		return nil, fmt.Errorf("API endpoint must use HTTPS: %s", baseURL)
 	}
 
