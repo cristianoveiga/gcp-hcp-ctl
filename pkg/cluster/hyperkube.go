@@ -9,7 +9,7 @@ import (
 	"log/slog"
 	"os"
 
-	publicv1 "github.com/thetechnick/orlop-gcp-hcp/api/public/v1"
+	publicv1 "github.com/openshift-online/gecko/platform-api/api/public/v1"
 	"github.com/go-logr/logr"
 	"github.com/openshift-online/gcp-hcp-ctl/pkg/infra/iam"
 	"github.com/openshift-online/gcp-hcp-ctl/pkg/infra/network"
@@ -26,7 +26,7 @@ func hkNamespace(cmd *cobra.Command) string {
 }
 
 func hkVersion(c *publicv1.Cluster) string {
-	if c.Spec.Release != nil && c.Spec.Release.Version != "" {
+	if c.Spec.Release.Version != "" {
 		return c.Spec.Release.Version
 	}
 	return "<none>"
@@ -181,7 +181,7 @@ func createClusterHyperkube(cmd *cobra.Command, hkClient client.Client, clusterN
 	if iamOut != nil && netOut != nil {
 		gcp.Network = netOut.NetworkName
 		gcp.Subnet = netOut.SubnetName
-		gcp.WorkloadIdentity = &publicv1.WorkloadIdentitySpec{
+		gcp.WorkloadIdentity = publicv1.WorkloadIdentitySpec{
 			PoolID:        iamOut.WorkloadIdentityPool.PoolID,
 			ProjectNumber: iamOut.ProjectNumber,
 			ProviderID:    iamOut.WorkloadIdentityPool.ProviderID,
@@ -198,7 +198,7 @@ func createClusterHyperkube(cmd *cobra.Command, hkClient client.Client, clusterN
 	c.Spec.Platform.GCP = gcp
 
 	if opts.version != "" || opts.channelGroup != "" {
-		c.Spec.Release = &publicv1.ClusterReleaseSpec{
+		c.Spec.Release = publicv1.ReleaseSpec{
 			Version:      opts.version,
 			ChannelGroup: opts.channelGroup,
 		}

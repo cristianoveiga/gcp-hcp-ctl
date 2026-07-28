@@ -3,7 +3,7 @@ package hyperkube
 import (
 	"fmt"
 
-	publicv1 "github.com/thetechnick/orlop-gcp-hcp/api/public/v1"
+	publicv1 "github.com/openshift-online/gecko/platform-api/api/public/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/rest"
 	"sigs.k8s.io/controller-runtime/pkg/client"

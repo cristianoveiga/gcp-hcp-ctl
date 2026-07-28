@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io"
 
-	publicv1 "github.com/thetechnick/orlop-gcp-hcp/api/public/v1"
+	publicv1 "github.com/openshift-online/gecko/platform-api/api/public/v1"
 	"github.com/openshift-online/gcp-hcp-ctl/pkg/output"
 	"github.com/spf13/cobra"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -19,7 +19,7 @@ func hkNamespace(cmd *cobra.Command) string {
 }
 
 func hkNPVersion(np *publicv1.NodePool) string {
-	if np.Spec.Release != nil && np.Spec.Release.Version != "" {
+	if np.Spec.Release.Version != "" {
 		return np.Spec.Release.Version
 	}
 	return "<none>"
@@ -126,7 +126,7 @@ func createNodePoolHyperkube(cmd *cobra.Command, hkClient client.Client, npName 
 				Type: "GCP",
 				GCP: &publicv1.GCPNodePoolPlatform{
 					MachineType: opts.instanceType,
-					DiskSize:    int32(opts.diskSize),
+					DiskSizeGB:  int64(opts.diskSize),
 					DiskType:    opts.diskType,
 				},
 			},
@@ -134,11 +134,11 @@ func createNodePoolHyperkube(cmd *cobra.Command, hkClient client.Client, npName 
 	}
 
 	if opts.zone != "" {
-		np.Spec.Platform.GCP.Zones = []string{opts.zone}
+		np.Spec.Platform.GCP.Zone = opts.zone
 	}
 
 	if opts.version != "" || opts.channelGroup != "" {
-		np.Spec.Release = &publicv1.ClusterReleaseSpec{
+		np.Spec.Release = publicv1.ReleaseSpec{
 			Version:      opts.version,
 			ChannelGroup: opts.channelGroup,
 		}
