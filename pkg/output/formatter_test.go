@@ -58,6 +58,32 @@ func TestPrintResultTextUnknownShapeReturnsError(t *testing.T) {
 	}
 }
 
+func TestPrintResultTextRejectsNonObjectItems(t *testing.T) {
+	tests := []struct {
+		name string
+		item interface{}
+	}{
+		{name: "nil", item: nil},
+		{name: "scalar", item: "invalid"},
+		{name: "array", item: []interface{}{}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var buf bytes.Buffer
+			err := PrintResult(&buf, FormatText, map[string]interface{}{
+				"resource_type": "pods",
+				"items": []interface{}{
+					map[string]interface{}{"metadata": map[string]interface{}{"name": "valid"}},
+					tt.item,
+				},
+			})
+			if err == nil || !strings.Contains(err.Error(), "item 2 to be an object") {
+				t.Fatalf("expected item shape error, got %v", err)
+			}
+		})
+	}
+}
+
 func TestFormatDuration(t *testing.T) {
 	tests := []struct {
 		name string

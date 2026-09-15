@@ -100,6 +100,11 @@ func PrintResourceTable(w io.Writer, result map[string]interface{}, resourceType
 			return fmt.Errorf("text output requires items or resource in the result")
 		}
 	}
+	for i, item := range items {
+		if _, ok := item.(map[string]interface{}); !ok {
+			return fmt.Errorf("text output requires item %d to be an object", i+1)
+		}
+	}
 
 	if resourceType == "" {
 		resourceType, _ = result["resource_type"].(string)
