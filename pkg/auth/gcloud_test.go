@@ -52,6 +52,47 @@ func TestGcloudFetcher_WhenAccountCommandExits_ItReturnsSafeAuthenticationError(
 	}
 }
 
+func TestGcloudFetcher_CanceledContextTakesPriorityOverCommandFailure(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	fetcher := gcloudFetcher{
+		commandOutput: func(context.Context, ...string) ([]byte, error) {
+			return nil, &exec.ExitError{Stderr: []byte("gcloud command failed")}
+		},
+	}
+	tests := []struct {
+		name  string
+		fetch func(context.Context) error
+	}{
+		{
+			name: "identity token",
+			fetch: func(ctx context.Context) error {
+				_, _, err := fetcher.FetchIdentityToken(ctx)
+				return err
+			},
+		},
+		{
+			name: "account email",
+			fetch: func(ctx context.Context) error {
+				_, err := fetcher.FetchAccountEmail(ctx)
+				return err
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := tt.fetch(ctx)
+			if !errors.Is(err, context.Canceled) {
+				t.Fatalf("error = %v, want context.Canceled", err)
+			}
+			if errors.Is(err, ErrGcloudAuthentication) {
+				t.Fatalf("error = %v unexpectedly matches ErrGcloudAuthentication", err)
+			}
+		})
+	}
+}
+
 func TestGcloudFetcher_WhenIdentityTokenCommandCannotStart_ItDoesNotMarkAuthenticationFailure(t *testing.T) {
 	fetcher := gcloudFetcher{
 		commandOutput: func(context.Context, ...string) ([]byte, error) {
