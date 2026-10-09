@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"os/exec"
+	"strings"
 	"testing"
 )
 
@@ -20,6 +21,34 @@ func TestGcloudFetcher_WhenIdentityTokenCommandExits_ItMarksAuthenticationFailur
 	_, _, err := fetcher.FetchIdentityToken(context.Background())
 	if !errors.Is(err, ErrGcloudAuthentication) {
 		t.Fatalf("error = %v, want ErrGcloudAuthentication", err)
+	}
+	if strings.Contains(err.Error(), "no active account") {
+		t.Fatalf("error = %q unexpectedly includes gcloud output", err)
+	}
+	if !strings.Contains(err.Error(), "gcloud auth login") {
+		t.Fatalf("error = %q, want gcloud login guidance", err)
+	}
+}
+
+func TestGcloudFetcher_WhenAccountCommandExits_ItReturnsSafeAuthenticationError(t *testing.T) {
+	fetcher := gcloudFetcher{
+		commandOutput: func(_ context.Context, args ...string) ([]byte, error) {
+			if len(args) != 3 || args[0] != "config" || args[1] != "get-value" || args[2] != "account" {
+				t.Fatalf("gcloud arguments = %q, want config get-value account", args)
+			}
+			return nil, &exec.ExitError{Stderr: []byte("sensitive gcloud output")}
+		},
+	}
+
+	_, err := fetcher.FetchAccountEmail(context.Background())
+	if !errors.Is(err, ErrGcloudAuthentication) {
+		t.Fatalf("error = %v, want ErrGcloudAuthentication", err)
+	}
+	if strings.Contains(err.Error(), "sensitive gcloud output") {
+		t.Fatalf("error = %q unexpectedly includes gcloud output", err)
+	}
+	if !strings.Contains(err.Error(), "gcloud auth login") {
+		t.Fatalf("error = %q, want gcloud login guidance", err)
 	}
 }
 

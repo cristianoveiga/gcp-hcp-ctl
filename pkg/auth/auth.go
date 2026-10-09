@@ -233,24 +233,19 @@ func (g gcloudFetcher) output(ctx context.Context, args ...string) ([]byte, erro
 	return exec.CommandContext(ctx, "gcloud", args...).Output()
 }
 
+func gcloudAuthenticationError(operation string) error {
+	return fmt.Errorf("%w: %s\n\n  Ensure gcloud is installed and authenticated:\n    gcloud auth login", ErrGcloudAuthentication, operation)
+}
+
 func (g gcloudFetcher) FetchIdentityToken(ctx context.Context) (string, time.Time, error) {
 	out, err := g.output(ctx, "auth", "print-identity-token")
 	if err != nil {
 		if ctxErr := ctx.Err(); ctxErr != nil {
 			return "", time.Time{}, ctxErr
 		}
-		var stderr string
 		var exitErr *exec.ExitError
 		if errors.As(err, &exitErr) {
-			stderr = strings.TrimSpace(string(exitErr.Stderr))
-		}
-		if stderr != "" {
-			return "", time.Time{}, fmt.Errorf("%w: failed to get identity token: %s", ErrGcloudAuthentication, stderr)
-		}
-		if exitErr != nil {
-			return "", time.Time{}, fmt.Errorf("%w: failed to get identity token: %v\n\n"+
-				"  Ensure gcloud is installed and authenticated:\n"+
-				"    gcloud auth login", ErrGcloudAuthentication, err)
+			return "", time.Time{}, gcloudAuthenticationError("failed to get identity token")
 		}
 		return "", time.Time{}, fmt.Errorf("failed to get identity token: %w\n\n"+
 			"  Ensure gcloud is installed and authenticated:\n"+
@@ -272,7 +267,7 @@ func (g gcloudFetcher) FetchAccountEmail(ctx context.Context) (string, error) {
 		}
 		var exitErr *exec.ExitError
 		if errors.As(err, &exitErr) {
-			return "", fmt.Errorf("%w: failed to get account email: %v", ErrGcloudAuthentication, err)
+			return "", gcloudAuthenticationError("failed to get account email")
 		}
 		return "", fmt.Errorf("failed to get account email: %w", err)
 	}
